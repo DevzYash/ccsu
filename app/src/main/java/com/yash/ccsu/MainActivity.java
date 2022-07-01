@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     WebView webView;
     TextView tv;
-    ArrayList<String> newsTitleList, newsDatesList, newsLinksList;
+    ArrayList<String> newsTitleList, newsDatesList, newsLinksList,mylust;
     ArrayList<DataAdapter> data = new ArrayList<>();
     int listSize;
     RecyclerView recyclerView;
