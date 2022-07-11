@@ -7,7 +7,7 @@ public class JSONUtil {
 
         for(int i=0; i<input.length(); i++) {
             char ch = input.charAt(i);
-            int chx = (int) ch;
+            int chx = ch;
 
             // let's not put any nulls in our strings
             assert(chx != 0);

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ccsu</string>
+    <string name="c">"document.getElementsByClassName("col-md-6")[0].getElementsByClassName("table table-bordered table-striped")[0].childNodes[3].children[20].getElementsByTagName("td")[0].innerText"</string>
+
 </resources>

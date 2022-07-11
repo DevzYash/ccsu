@@ -13,4 +13,7 @@
         <item name="android:statusBarColor" tools:targetApi="l">@color/purple_200</item>
         <!-- Customize your theme here. -->
     </style>
+
+
+
 </resources>

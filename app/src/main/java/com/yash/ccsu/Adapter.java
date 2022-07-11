@@ -41,12 +41,10 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         holder.subtitle.setText(myData.get(position).getSubtitle());
         holder.image.setImageResource(myData.get(position).getImage());
         holder.cardView.setOnClickListener(view -> {
-            String url = "https://google.com/";
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
             CustomTabsIntent customTabsIntent = builder.build();
             customTabsIntent.intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             customTabsIntent.launchUrl(context.getApplicationContext(), Uri.parse(myData.get(position).getLink()));
-
             Toast.makeText(context, "Opening...", Toast.LENGTH_SHORT).show();
         });
 
