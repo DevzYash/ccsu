@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
@@ -40,11 +41,12 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         holder.subtitle.setText(myData.get(position).getSubtitle());
         holder.image.setImageResource(myData.get(position).getImage());
         holder.cardView.setOnClickListener(view -> {
-            Intent intent = new Intent();
-            intent.setAction(Intent.ACTION_VIEW);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setData(Uri.parse(myData.get(position).getLink()));
-            context.startActivity(intent);
+            String url = "https://google.com/";
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+            CustomTabsIntent customTabsIntent = builder.build();
+            customTabsIntent.intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            customTabsIntent.launchUrl(context.getApplicationContext(), Uri.parse(myData.get(position).getLink()));
+
             Toast.makeText(context, "Opening...", Toast.LENGTH_SHORT).show();
         });
 

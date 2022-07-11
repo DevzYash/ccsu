@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
             Log.d("yashyash", newsLinksList.toString());
             Log.d("yashyash", String.valueOf(newsLinksList.size()));
             Toast.makeText(this, "Total News are " + newsLinksList.size(), Toast.LENGTH_SHORT).show();
-
         });
         newsDatesList = new ArrayList<>();
         newsLinksList = new ArrayList<>();
@@ -68,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
             webView.evaluateJavascript("document.getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].childElementCount", s -> {
                 // getting total rows
                 listSize = Integer.parseInt(s);
-                Log.e("yashyash", String.valueOf(listSize));
                 for (int i = 0; i < listSize; i++) {
                     int finalI = i;
                     // getting every single date
@@ -96,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
                         data.add(dataAdapter);
                         Adapter adapter = new Adapter(data, getApplicationContext());
                         recyclerView.setAdapter(adapter);
-                        Log.e("yashyash","01");
                     });
                     //loop end
                 }
