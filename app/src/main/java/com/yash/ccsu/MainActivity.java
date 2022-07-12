@@ -7,13 +7,14 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
@@ -25,16 +26,25 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<DataAdapter> data = new ArrayList<>();
     int listSize;
     RecyclerView recyclerView;
+    Button button;
+    MaterialCardView notificationCard, examCard, revisedExamCard;
+    LinearLayout homeLayout,recyclerLayout;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        recyclerView = findViewById(R.id.recyclerView);
-        Button button = findViewById(R.id.button);
-        webView = findViewById(R.id.webview);
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        findingViews();
+        design();
+        notificationCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                homeLayout.setVisibility(View.GONE);
+                recyclerLayout.setVisibility(View.VISIBLE);
+            }
+        });
+
         button.setOnClickListener(view -> {
             Log.d("yashyash", newsDatesList.toString());
             Log.d("yashyash", newsTitleList.toString());
@@ -42,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("yashyash", String.valueOf(newsLinksList.size()));
             Toast.makeText(this, "Total News are " + newsLinksList.size(), Toast.LENGTH_SHORT).show();
         });
+
         newsDatesList = new ArrayList<>();
         newsLinksList = new ArrayList<>();
         newsTitleList = new ArrayList<>();
@@ -60,54 +71,81 @@ public class MainActivity extends AppCompatActivity {
                     .setPositiveButton("Okay", null).show();
         }
 
-     //   myUtils.progressDialog(MainActivity.this, R.layout.progressdialog, false);
-    //    myUtils.showProgressDialog();
+           myUtils.progressDialog(MainActivity.this, R.layout.progressdialog, false);
+           myUtils.showProgressDialog();
 
 
+    }
 
+    private void findingViews() {
+        recyclerView = findViewById(R.id.recyclerView);
+        button = findViewById(R.id.button);
+        webView = findViewById(R.id.webview);
+        notificationCard = findViewById(R.id.notificationCard);
+        examCard = findViewById(R.id.examCard);
+        revisedExamCard = findViewById(R.id.revisedExamCard);
+        homeLayout = findViewById(R.id.homeLayout);
+        recyclerLayout = findViewById(R.id.recyclerViewParent);
 
+    }
+
+    private void design() {
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
     }
 
     private class webclient extends WebViewClient {
         @Override
         public void onPageFinished(WebView view, String url) {
-            webView.evaluateJavascript("document.getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].childElementCount", s -> {
-                // getting total rows
-                listSize = Integer.parseInt(s);
-                for (int i = 0; i < listSize; i++) {
-                    int finalI = i;
-                    // getting every single date
-                    webView.evaluateJavascript("document.getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].children[" + i + "].getElementsByTagName(\"td\")[0].innerText", s12 -> {
-                        s12 = JSONUtil.unescape(s12).replace("\"", "");
-                        newsDatesList.add(s12);
-                    });
-                    // getting every single title
-                    webView.evaluateJavascript("document.getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].children[" + i + "].getElementsByTagName(\"td\")[1].innerText", s1 -> {
-                        s1 = JSONUtil.unescape(s1).replace("\"", "");
-                        newsTitleList.add(s1);
-                    });
-                    // getting every single link
-                    webView.evaluateJavascript("document.getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].children[" + i + "]" + ".getElementsByTagName(\"td\")[1].innerHTML", s13 -> {
-                        s13 = JSONUtil.unescape(s13).replace("\"", "");
-                        if (s13.contains("news.php")) {
-                            String newText = s13.substring(8, s13.indexOf("target"));
-                            newsLinksList.add("https://www.ccsuniversity.ac.in/ccsum/" + newText);
-                        } else {
-                            String newText = s13.substring(8, s13.indexOf(">"));
-                            newsLinksList.add(newText);
-                        }
-                        DataAdapter dataAdapter = new DataAdapter(newsDatesList.get(finalI), newsTitleList.get(finalI), (finalI == 0 || finalI == 1) ? (R.drawable.newitem) : (R.drawable.newspaper), newsLinksList.get(finalI));
-                        data.add(dataAdapter);
-                        Adapter adapter = new Adapter(data, getApplicationContext());
-                        recyclerView.setAdapter(adapter);
-                    });
-                    //loop end
-                }
-            });
+            if (url.equals("https://www.ccsuniversity.ac.in/ccsum/search-news.php")) {
+                webView.evaluateJavascript("document.getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].childElementCount", s -> {
+                    // getting total rows
+                    listSize = Integer.parseInt(s);
+                    for (int i = 0; i < listSize; i++) {
+                        int finalI = i;
+                        // getting every single date
+                        webView.evaluateJavascript("document.getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].children[" + i + "].getElementsByTagName(\"td\")[0].innerText", s12 -> {
+                            s12 = JSONUtil.unescape(s12).replace("\"", "");
+                            newsDatesList.add(s12);
+                        });
+                        // getting every single title
+                        webView.evaluateJavascript("document.getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].children[" + i + "].getElementsByTagName(\"td\")[1].innerText", s1 -> {
+                            s1 = JSONUtil.unescape(s1).replace("\"", "");
+                            newsTitleList.add(s1);
+                        });
+                        // getting every single link
+                        webView.evaluateJavascript("document.getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].children[" + i + "]" + ".getElementsByTagName(\"td\")[1].innerHTML", s13 -> {
+                            s13 = JSONUtil.unescape(s13).replace("\"", "");
+                            if (s13.contains("news.php")) {
+                                String newText = s13.substring(8, s13.indexOf("target"));
+                                newsLinksList.add("https://www.ccsuniversity.ac.in/ccsum/" + newText);
+                            } else {
+                                String newText = s13.substring(8, s13.indexOf(">"));
+                                newsLinksList.add(newText);
+                            }
+                            DataAdapter dataAdapter = new DataAdapter(newsDatesList.get(finalI), newsTitleList.get(finalI), (finalI == 0 || finalI == 1) ? (R.drawable.newitem) : (R.drawable.newspaper), newsLinksList.get(finalI));
+                            data.add(dataAdapter);
+                            Adapter adapter = new Adapter(data, getApplicationContext());
+                            recyclerView.setAdapter(adapter);
+                        });
+                        //loop end
+                    }
+                });
+            }
+
             // page loaded
-          //  myUtils.dismissProgressDialog();
+            myUtils.dismissProgressDialog();
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (recyclerLayout.getVisibility()==View.VISIBLE){
+            homeLayout.setVisibility(View.VISIBLE);
+            recyclerLayout.setVisibility(View.GONE);
+        }
+        else{
+            super.onBackPressed();
+        }
 
+    }
 }
