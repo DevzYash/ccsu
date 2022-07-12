@@ -28,7 +28,6 @@ public class myUtils {
         View view = LayoutInflater.from(context).inflate(layout,null);
         dialog.setContentView(view);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        dialog.show();
     }
 
     public static void dismissProgressDialog(){

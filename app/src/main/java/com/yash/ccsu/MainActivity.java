@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -18,13 +19,15 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
     WebView webView;
 
-    ArrayList<String> newsTitleList, newsDatesList, newsLinksList;
+    ArrayList<String> newsTitleList, newsDatesList, newsLinksList,examTitleList,examDateList,examLinkList;
     ArrayList<DataAdapter> data = new ArrayList<>();
-    int listSize;
+
+    int notificationListSize,examsListSize;
     RecyclerView recyclerView;
     Button button;
     MaterialCardView notificationCard, examCard, revisedExamCard;
@@ -37,13 +40,41 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         findingViews();
         design();
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.setWebViewClient(new webclient());
+        myUtils.progressDialog(MainActivity.this, R.layout.progressdialog, false);
+
         notificationCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Toast.makeText(MainActivity.this, String.valueOf(data.size()), Toast.LENGTH_SHORT).show();
+                if(data.size()>0){
+                    data.clear();
+                }
                 homeLayout.setVisibility(View.GONE);
                 recyclerLayout.setVisibility(View.VISIBLE);
+                webView.loadUrl("https://www.ccsuniversity.ac.in/ccsum/search-news.php");
+                myUtils.showProgressDialog();
+
+
             }
         });
+
+        examCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(MainActivity.this, String.valueOf(data.size()), Toast.LENGTH_SHORT).show();
+                if(data.size()>0){
+                    data.clear();
+                }
+                Log.e("yashyash", String.valueOf(examLinkList));
+                homeLayout.setVisibility(View.GONE);
+                recyclerLayout.setVisibility(View.VISIBLE);
+                webView.loadUrl("https://www.ccsuniversity.ac.in/ccsum/Category.php?Id=c9f0f895fb98ab9159f51fd0297e236d");
+                myUtils.showProgressDialog();
+            }
+        });
+
 
         button.setOnClickListener(view -> {
             Log.d("yashyash", newsDatesList.toString());
@@ -56,23 +87,20 @@ public class MainActivity extends AppCompatActivity {
         newsDatesList = new ArrayList<>();
         newsLinksList = new ArrayList<>();
         newsTitleList = new ArrayList<>();
+        examDateList = new ArrayList<>();
+        examLinkList = new ArrayList<>();
+        examTitleList = new ArrayList<>();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(linearLayoutManager);
         Adapter adapter = new Adapter(data, getApplicationContext());
         recyclerView.setAdapter(adapter);
 
-        if (myUtils.isConnected(MainActivity.this)) {
-            webView.loadUrl("https://www.ccsuniversity.ac.in/ccsum/search-news.php");
-            webView.getSettings().setJavaScriptEnabled(true);
-            webView.setWebViewClient(new webclient());
-        } else {
+        if (!myUtils.isConnected(MainActivity.this)) {
             new MaterialAlertDialogBuilder(MainActivity.this)
                     .setMessage("Turn On Your Internet")
                     .setPositiveButton("Okay", null).show();
         }
 
-           myUtils.progressDialog(MainActivity.this, R.layout.progressdialog, false);
-           myUtils.showProgressDialog();
 
 
     }
@@ -99,8 +127,8 @@ public class MainActivity extends AppCompatActivity {
             if (url.equals("https://www.ccsuniversity.ac.in/ccsum/search-news.php")) {
                 webView.evaluateJavascript("document.getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].childElementCount", s -> {
                     // getting total rows
-                    listSize = Integer.parseInt(s);
-                    for (int i = 0; i < listSize; i++) {
+                    notificationListSize = Integer.parseInt(s);
+                    for (int i = 0; i < notificationListSize; i++) {
                         int finalI = i;
                         // getting every single date
                         webView.evaluateJavascript("document.getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].children[" + i + "].getElementsByTagName(\"td\")[0].innerText", s12 -> {
@@ -126,12 +154,61 @@ public class MainActivity extends AppCompatActivity {
                             data.add(dataAdapter);
                             Adapter adapter = new Adapter(data, getApplicationContext());
                             recyclerView.setAdapter(adapter);
+
                         });
                         //loop end
                     }
                 });
             }
+            else if(url.equals("https://www.ccsuniversity.ac.in/ccsum/Category.php?Id=c9f0f895fb98ab9159f51fd0297e236d")){
+                webView.evaluateJavascript("document.getElementsByClassName(\"col-md-6\")[0].getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].childElementCount", new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String s) {
+                        examsListSize = Integer.parseInt(s);
+                        for (int i = 0; i < examsListSize; i++) {
+                            int finalI = i;
+                            // getting every single title
+                            webView.evaluateJavascript("document.getElementsByClassName(\"col-md-6\")[0].getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].children[" + i + "].getElementsByTagName(\"td\")[0].innerText", new ValueCallback<String>() {
+                                @Override
+                                public void onReceiveValue(String s) {
+                                    s = JSONUtil.unescape(s).replace("\"","");
+                                    examTitleList.add(s);
+                                }
+                            });
+                            // getting every single date
+                            webView.evaluateJavascript("document.getElementsByClassName(\"col-md-6\")[0].getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].children[" + i + "].getElementsByTagName(\"td\")[1].innerText", new ValueCallback<String>() {
+                                @Override
+                                public void onReceiveValue(String s) {
+                                    s = JSONUtil.unescape(s).replace("\"","");
+                                    examDateList.add(s);
+                                }
+                            });
+                            // getting every single link
+                            webView.evaluateJavascript("document.getElementsByClassName(\"col-md-6\")[0].getElementsByClassName(\"table table-bordered table-striped\")[0].childNodes[3].children[" + i + "].getElementsByTagName(\"td\")[2].children[0].innerHTML", new ValueCallback<String>() {
+                                @Override
+                                public void onReceiveValue(String s) {
+                                    s = JSONUtil.unescape(s).replace("\"", "");
+                                    if (s.contains("news.php")) {
+                                       String newText = s.substring(s.indexOf("href")+5,s.indexOf("target"));
+                                        examLinkList.add("https://www.ccsuniversity.ac.in/ccsum/" + newText);
+                                    } else {
+                                        String newText = s.substring(8, s.indexOf(">"));
+                                        examLinkList.add(newText);
+                                    }
+                                    DataAdapter dataAdapter = new DataAdapter(examDateList.get(finalI), examTitleList.get(finalI), (finalI == 0 || finalI == 1) ? (R.drawable.newitem) : (R.drawable.newspaper), examLinkList.get(finalI));
+                                    data.add(dataAdapter);
+                                    Adapter adapter = new Adapter(data, getApplicationContext());
+                                    recyclerView.setAdapter(adapter);
+                                }
+                            });
 
+
+
+                        }
+                    }
+                });
+
+            }
             // page loaded
             myUtils.dismissProgressDialog();
         }
