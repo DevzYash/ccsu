@@ -3,6 +3,7 @@ package com.yash.ccsu;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     WebView webView;
-    TextView tv;
+
     ArrayList<String> newsTitleList, newsDatesList, newsLinksList;
     ArrayList<DataAdapter> data = new ArrayList<>();
     int listSize;
@@ -30,10 +31,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        tv = findViewById(R.id.Tv);
         recyclerView = findViewById(R.id.recyclerView);
         Button button = findViewById(R.id.button);
         webView = findViewById(R.id.webview);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         button.setOnClickListener(view -> {
             Log.d("yashyash", newsDatesList.toString());
             Log.d("yashyash", newsTitleList.toString());
@@ -51,18 +52,18 @@ public class MainActivity extends AppCompatActivity {
 
         if (myUtils.isConnected(MainActivity.this)) {
             webView.loadUrl("https://www.ccsuniversity.ac.in/ccsum/search-news.php");
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.setWebViewClient(new webclient());
         } else {
             new MaterialAlertDialogBuilder(MainActivity.this)
                     .setMessage("Turn On Your Internet")
                     .setPositiveButton("Okay", null).show();
         }
 
-        myUtils.progressDialog(MainActivity.this, R.layout.progressdialog, false);
-        myUtils.showProgressDialog();
+     //   myUtils.progressDialog(MainActivity.this, R.layout.progressdialog, false);
+    //    myUtils.showProgressDialog();
 
 
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.setWebViewClient(new webclient());
 
 
     }
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             // page loaded
-            myUtils.dismissProgressDialog();
+          //  myUtils.dismissProgressDialog();
         }
     }
 
